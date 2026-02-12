@@ -62,7 +62,7 @@ pip install "mindvault[dev]"
 
 #### 从源码安装
 ```bash
-git clone https://github.com/mindvault-team/mindvault.git
+git clone https://github.com/Leo774-ux/mindvault.git
 cd mindvault
 pip install -e ".[full]"
 ```
@@ -315,7 +315,7 @@ ruff check src/
 ## 📖 文档
 
 ### 在线文档
-访问 https://mindvault.readthedocs.io 获取完整文档。
+访问 https://github.com/Leo774-ux/MindVault/edit/main/README.md 获取完整文档。
 
 ### 本地构建文档
 ```bash
@@ -364,7 +364,7 @@ docs/
 ### 开发环境设置
 ```bash
 # 克隆项目
-git clone https://github.com/mindvault-team/mindvault.git
+git clone https://github.com/Leo774-ux/mindvault.git
 cd mindvault
 
 # 创建虚拟环境
