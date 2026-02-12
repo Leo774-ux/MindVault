@@ -1,430 +1,322 @@
 # MindVault
 
-!https://img.shields.io/badge/python-3.10%2B-blue
-!https://img.shields.io/badge/license-MIT-green
-!https://img.shields.io/badge/build-passing-brightgreen
-!https://img.shields.io/badge/coverage-95%25-brightgreen
+https://img.shields.io/badge/python-3.10+-blue.svg](https://www.python.org/downloads/)
+https://img.shields.io/badge/License-MIT-yellow.svg](https://opensource.org/licenses/MIT)
+https://img.shields.io/badge/code%20style-black-000000.svg](https://github.com/psf/black)
+https://img.shields.io/pypi/v/mindvault.svg](https://pypi.org/project/mindvault/)
 
-**MindVault** 是一个安全、高效的数据存储与传输工具包，专为现代数据管理需求设计。它提供了文件传输、数据存储、数据同步等多种功能，支持命令行、图形界面和Web API三种使用方式。
+**MindVault** 是一个安全、高效的数据存储与传输工具包，专为现代应用设计，提供统一的数据管理解决方案。
 
 ## ✨ 特性
 
-### 🚀 核心功能
-- **多协议文件传输**：支持TCP、UDP、WebSocket等多种传输协议
-- **安全传输**：端到端加密、完整性校验、压缩传输
-- **高性能存储**：支持JSON、YAML、CSV、TXT、JSON Lines等多种格式
-- **智能同步**：双向/单向同步、冲突检测与解决、增量同步
-- **版本控制**：自动版本管理、历史记录、回滚功能
+### 🚀 高性能传输
+- **多协议支持**：TCP、UDP、WebSocket等多种传输协议
+- **断点续传**：大文件传输支持断点续传
+- **压缩加密**：内置数据压缩和端到端加密
+- **并行传输**：支持多线程/多进程并发传输
+- **进度监控**：实时传输进度和状态监控
 
-### 🎯 技术亮点
-- **现代Python**：基于Python 3.10+，充分利用类型提示和异步特性
-- **模块化设计**：插件化架构，易于扩展和维护
-- **异步I/O**：基于asyncio的高性能异步处理
-- **类型安全**：完整的类型提示，支持mypy静态检查
-- **多种接口**：CLI命令行、GUI图形界面、Web API
+### 💾 智能存储
+- **多种存储格式**：JSON、YAML、CSV、TXT、JSON Lines
+- **嵌入式存储**：内置SQLite、Shelve、Pickle存储后端
+- **查询引擎**：灵活的数据查询和过滤
+- **索引优化**：自动索引和查询优化
+- **数据迁移**：无缝数据迁移和版本管理
 
-### 🔒 安全特性
-- 传输层加密（TLS/SSL支持）
-- 端到端数据加密
-- 完整性校验（SHA-256/MD5）
-- 安全的密钥管理
-- 访问控制和权限管理
+### 🔄 可靠同步
+- **双向同步**：实时双向数据同步
+- **冲突解决**：智能冲突检测和解决方案
+- **版本控制**：完整的数据变更历史记录
+- **增量同步**：仅同步变更部分，节省带宽
+
+### 🎯 多种接口
+- **命令行界面(CLI)**：功能完整的命令行工具
+- **图形界面(GUI)**：基于PyQt5的桌面应用
+- **Web界面**：基于FastAPI的Web控制台
+- **Python API**：完整的Python编程接口
 
 ## 📦 安装
 
-### 系统要求
-- Python 3.10 或更高版本
-- 操作系统：Windows 10+/macOS 10.15+/Linux
-
-### 快速安装
-
-#### 基础安装（仅核心功能）
+### 基础安装
 ```bash
 pip install mindvault
 ```
 
-#### 安装完整功能
+### 可选功能安装
 ```bash
-pip install "mindvault[full]"
-```
+# 安装GUI功能
+pip install mindvault[gui]
 
-#### 安装特定功能
-```bash
-# 仅安装GUI功能
-pip install "mindvault[gui]"
+# 安装Web功能
+pip install mindvault[web]
 
-# 仅安装Web功能
-pip install "mindvault[web]"
+# 安装完整功能
+pip install mindvault[full]
 
-# 安装开发版本
-pip install "mindvault[dev]"
-```
-
-#### 从源码安装
-```bash
-git clone https://github.com/Leo774-ux/mindvault.git
+# 开发模式安装
+git clone https://github.com/leo774-ux/mindvault.git
 cd mindvault
-pip install -e ".[full]"
+pip install -e ".[dev]"
 ```
 
 ## 🚀 快速开始
 
-### 基本使用
-
-#### 文件传输
+### 1. 文件传输
 ```python
-from mindvault.net.transfer import FileTransfer
+from mindvault.net import FileTransfer
+from mindvault.net.protocols import TCPProtocol
+
+# 创建传输实例
+transfer = FileTransfer(TCPProtocol())
 
 # 发送文件
-transfer = FileTransfer(host="127.0.0.1", port=8888)
-await transfer.send_file("local_file.txt", "remote_file.txt")
+await transfer.send_file(
+    source="/path/to/local/file.txt",
+    destination="tcp://127.0.0.1:8888/file.txt",
+    encryption=True,
+    compression=True
+)
 
 # 接收文件
-await transfer.receive_file("remote_file.txt", "local_file.txt")
+await transfer.receive_file(
+    source="tcp://127.0.0.1:8888/file.txt",
+    destination="/path/to/save/file.txt"
+)
 ```
 
-#### 数据存储
+### 2. 数据存储
 ```python
-from mindvault.storage.kv import JSONStore
+from mindvault.storage import get_storage
 
-# 创建存储实例
-store = JSONStore("data.json")
+# 获取JSON存储实例
+storage = get_storage("json", "/path/to/data.json")
 
 # 存储数据
-store.set("user:1", {"name": "Alice", "age": 30})
-store.set("user:2", {"name": "Bob", "age": 25})
+storage.set("user:1", {"name": "Alice", "age": 25})
+storage.set("user:2", {"name": "Bob", "age": 30})
 
 # 查询数据
-user = store.get("user:1")
-users = store.query(lambda x: x["age"] > 25)
+users = storage.query("user:*")
+young_users = storage.query("user:*", filters={"age": {"$lt": 30}})
 
-# 保存到文件
-store.save()
+# 更新数据
+storage.update("user:1", {"age": 26})
+
+# 删除数据
+storage.delete("user:2")
 ```
 
-#### 数据同步
+### 3. 数据同步
 ```python
 from mindvault.sync import SyncManager
 
 # 创建同步管理器
-sync = SyncManager()
-
-# 配置同步规则
-config = {
-    "source": "/path/to/source",
-    "target": "/path/to/target",
-    "strategy": "bidirectional",  # 双向同步
-    "interval": 60,  # 60秒同步一次
-}
+sync_manager = SyncManager(
+    source_storage=get_storage("json", "/path/to/source.json"),
+    target_storage=get_storage("yaml", "/path/to/target.yaml"),
+    sync_strategy="bidirectional"
+)
 
 # 开始同步
-await sync.start(config)
+await sync_manager.start()
+
+# 手动触发同步
+await sync_manager.sync()
+
+# 获取同步状态
+status = sync_manager.get_status()
+print(f"同步状态: {status}")
 ```
+
+## 📖 使用示例
 
 ### 命令行使用
-
-#### 文件传输
 ```bash
-# 发送文件
-mv-transfer send --host 127.0.0.1 --port 8888 local_file.txt remote_file.txt
+# 传输文件
+mindvault transfer send /path/to/file.txt tcp://localhost:8888/
+mindvault transfer receive tcp://localhost:8888/ /path/to/save/
 
-# 接收文件
-mv-transfer receive --host 127.0.0.1 --port 8888 remote_file.txt local_file.txt
+# 存储管理
+mindvault storage set "key" "value" --format json
+mindvault storage get "key" --format json
+mindvault storage query "user:*" --filters '{"age": {"$gt": 20}}'
 
-# 列出传输任务
-mv-transfer list
+# 数据同步
+mindvault sync start /path/source.json /path/target.yaml
+mindvault sync status
 ```
 
-#### 数据存储
-```bash
-# 设置键值
-mv-storage set --store data.json user:1 '{"name": "Alice", "age": 30}'
+### Python API
+```python
+import asyncio
+from mindvault import MindVault
 
-# 获取键值
-mv-storage get --store data.json user:1
+async def main():
+    # 创建MindVault实例
+    mv = MindVault()
+    
+    # 文件传输
+    await mv.transfer_file(
+        source="local.txt",
+        destination="remote.txt",
+        protocol="tcp"
+    )
+    
+    # 数据管理
+    storage = mv.get_storage("json", "data.json")
+    await storage.batch_set({
+        "item:1": {"name": "Item 1"},
+        "item:2": {"name": "Item 2"}
+    })
+    
+    # 同步配置
+    await mv.sync_folders(
+        source="/path/source",
+        target="/path/target",
+        interval=60  # 每分钟同步一次
+    )
 
-# 查询数据
-mv-storage query --store data.json 'age > 25'
-
-# 导出数据
-mv-storage export --store data.json --format jsonl output.jsonl
+asyncio.run(main())
 ```
 
-#### 数据同步
+## 🔧 配置
+
+MindVault支持多种配置方式：
+
+### 配置文件
+```yaml
+# config.yaml
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+transfer:
+  chunk_size: 8192
+  max_retries: 3
+  encryption: true
+  
+storage:
+  default_format: json
+  compression: true
+  
+sync:
+  strategy: bidirectional
+  conflict_resolution: newer_wins
+```
+
+### 环境变量
 ```bash
-# 配置同步
-mv-sync config add my-sync \
-  --source /path/to/source \
-  --target /path/to/target \
-  --strategy bidirectional
-
-# 启动同步
-mv-sync start my-sync
-
-# 查看同步状态
-mv-sync status
-
-# 解析冲突
-mv-sync resolve --all
+export MINDPORT_LOG_LEVEL=INFO
+export MINDPORT_TRANSFER_CHUNK_SIZE=8192
+export MINDPORT_STORAGE_COMPRESSION=true
 ```
 
 ## 📁 项目结构
 
 ```
 mindvault/
-├── src/
-│   └── mindvault/           # 主包
-│       ├── core/            # 核心模块
-│       ├── net/             # 网络传输
-│       ├── storage/         # 数据存储
-│       ├── sync/            # 数据同步
-│       ├── cli/             # 命令行接口
-│       ├── gui/             # 图形界面
-│       ├── web/             # Web接口
-│       ├── plugins/         # 插件系统
-│       ├── data/            # 默认数据
-│       └── tools/           # 工具脚本
-├── tests/                   # 测试套件
-├── examples/                # 使用示例
-├── docs/                    # 项目文档
-└── scripts/                 # 辅助脚本
-```
-
-## ⚙️ 配置
-
-MindVault 支持多种配置方式：
-
-### 配置文件
-配置文件位于 `~/.mindvault/config.yaml` 或项目根目录的 `mindvault.yaml`。
-
-```yaml
-# mindvault.yaml
-logging:
-  level: INFO
-  format: "[%(asctime)s] %(levelname)s - %(name)s - %(message)s"
-
-transfer:
-  default_host: 127.0.0.1
-  default_port: 8888
-  chunk_size: 8192
-  timeout: 30
-
-storage:
-  default_format: json
-  compression: true
-  encryption: true
-
-sync:
-  default_strategy: bidirectional
-  conflict_resolution: newer
-  max_history: 100
-```
-
-### 环境变量
-```bash
-export MINDFAULT_LOG_LEVEL=DEBUG
-export MINDFAULT_TRANSFER_PORT=8888
-export MINDFAULT_STORAGE_PATH=/data
-```
-
-### 命令行参数
-```bash
-mindvault --config /path/to/config.yaml
-mv-transfer --host 192.168.1.100 --port 9999
-```
-
-## 🔌 插件系统
-
-MindVault 支持插件扩展，可以通过插件添加：
-
-### 添加自定义传输协议
-```python
-from mindvault.net.protocols import TransferProtocol
-
-class MyProtocol(TransferProtocol):
-    async def send(self, data, **kwargs):
-        # 自定义发送逻辑
-        pass
-    
-    async def receive(self, **kwargs):
-        # 自定义接收逻辑
-        pass
-```
-
-### 添加自定义存储后端
-```python
-from mindvault.storage.base import StorageBackend
-
-class MyStorage(StorageBackend):
-    def __init__(self, config):
-        self.config = config
-    
-    async def save(self, data):
-        # 自定义保存逻辑
-        pass
-    
-    async def load(self):
-        # 自定义加载逻辑
-        pass
-```
-
-### 插件注册
-```python
-# setup.py
-entry_points={
-    "mindvault.plugins": [
-        "my_protocol = my_package.plugins:MyProtocol",
-        "my_storage = my_package.plugins:MyStorage",
-    ]
-}
+├── src/mindvault/
+│   ├── core/          # 核心模块
+│   ├── net/           # 网络传输
+│   ├── storage/       # 数据存储
+│   ├── sync/          # 数据同步
+│   ├── cli/           # 命令行接口
+│   ├── gui/           # 图形界面
+│   ├── web/           # Web接口
+│   ├── plugins/       # 插件系统
+│   ├── data/          # 数据文件
+│   └── tools/         # 工具脚本
+├── tests/             # 测试套件
+├── docs/              # 文档
+├── examples/          # 示例代码
+└── scripts/           # 辅助脚本
 ```
 
 ## 🧪 测试
 
-### 运行测试
+运行测试套件：
+
 ```bash
+# 安装测试依赖
+pip install -e ".[dev]"
+
 # 运行所有测试
 pytest
 
-# 运行特定模块测试
-pytest tests/test_net/
-
 # 运行特定测试
-pytest tests/test_net/test_transfer.py::TestFileTransfer
+pytest tests/unit/
+pytest tests/integration/
 
-# 运行测试并生成覆盖率报告
-pytest --cov=mindvault --cov-report=html
-```
+# 带覆盖率的测试
+pytest --cov=mindvault tests/
 
-### 代码质量检查
-```bash
-# 代码格式化
-black src/
-isort src/
-
-# 类型检查
-mypy src/
-
-# 代码检查
-ruff check src/
-
-# 运行所有检查
-./scripts/dev/check_all.sh
-```
-
-## 📖 文档
-
-### 在线文档
-访问 https://github.com/Leo774-ux/MindVault/edit/main/README.md 获取完整文档。
-
-### 本地构建文档
-```bash
-# 安装文档依赖
-pip install -e ".[docs]"
-
-# 构建文档
-cd docs
-make html
-
-# 查看文档
-open _build/html/index.html
-```
-
-### 文档结构
-```
-docs/
-├── index.md              # 首页
-├── getting_started.md    # 快速开始
-├── installation.md       # 安装指南
-├── configuration.md     # 配置指南
-├── guides/              # 使用指南
-│   ├── file_transfer.md
-│   ├── data_storage.md
-│   ├── data_sync.md
-│   ├── cli_usage.md
-│   ├── web_dashboard.md
-│   └── gui_usage.md
-├── api/                  # API文档
-├── tutorials/           # 教程
-├── reference/           # 参考文档
-└── faq.md              # 常见问题
+# 运行性能测试
+pytest tests/benchmarks/ -m performance
 ```
 
 ## 🤝 贡献
 
-我们欢迎任何形式的贡献！请查看 CONTRIBUTING.md 了解如何参与项目。
-
-### 开发流程
-1. Fork 项目
-2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
-3. 提交更改 (`git commit -m 'Add some amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 开启 Pull Request
+我们欢迎任何形式的贡献！请查看以下指南：
 
 ### 开发环境设置
 ```bash
-# 克隆项目
-git clone https://github.com/Leo774-ux/mindvault.git
+# 1. Fork 并克隆仓库
+git clone https://github.com/leo774-ux/mindvault.git
 cd mindvault
 
-# 创建虚拟环境
+# 2. 创建虚拟环境
 python -m venv venv
 source venv/bin/activate  # Linux/macOS
 # 或
 venv\Scripts\activate  # Windows
 
-# 安装开发依赖
+# 3. 安装开发依赖
 pip install -e ".[dev]"
 
-# 安装预提交钩子
+# 4. 安装预提交钩子
 pre-commit install
 ```
 
-### 代码规范
-- 遵循 https://www.python.org/dev/peps/pep-0008/ 代码风格
-- 使用类型提示
-- 编写单元测试
-- 保持文档与代码同步
-- 提交信息遵循 https://www.conventionalcommits.org/
+### 提交规范
+- 使用 https://www.conventionalcommits.org/ 规范
+- 每个提交应该只做一件事
+- 提交前运行测试确保通过
+
+### Pull Request 流程
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
+3. 提交更改 (`git commit -m 'feat: add amazing feature'`)
+4. 推送到分支 (`git push origin feature/amazing-feature`)
+5. 开启 Pull Request
 
 ## 📄 许可证
 
-本项目基于 MIT 许可证开源 - 查看 LICENSE 文件了解详情。
+本项目采用 MIT 许可证 - 查看 LICENSE 文件了解详情。
 
-## 📞 支持
+## 🆘 支持
 
-### 问题反馈
-- https://github.com/mindvault-team/mindvault/issues - 报告Bug或请求功能
-- https://github.com/mindvault-team/mindvault/discussions - 讨论和交流
+- 📖 https://mindvault.readthedocs.io
+- 🐛 https://github.com/leo774-ux/mindvault/issues
+- 💬 https://github.com/leo774-ux/mindvault/discussions
+- 💡 https://github.com/leo774-ux/mindvault/issues/new?template=feature_request.md
 
-### 社区
-- 邮箱：team@mindvault.ai
-- Discord：https://discord.gg/mindvault
-- Twitter：https://twitter.com/mindvault_ai
+## 🎯 路线图
 
-### 版本历史
-查看 CHANGELOG.md 了解版本更新历史。
+- [ ] 1.0.0 版本发布
+- [ ] 支持更多存储后端 (MongoDB, PostgreSQL)
+- [ ] 添加分布式存储支持
+- [ ] 实现增量备份功能
+- [ ] 添加机器学习数据管理模块
+- [ ] 开发移动端应用
 
-## 🌟 星星历史
+## 🙏 特别鸣谢
 
-https://api.star-history.com/svg?repos=mindvault-team/mindvault&type=Date](https://star-history.com/#mindvault-team/mindvault&Date)
-
-## 🙏 致谢
-
-感谢所有为这个项目做出贡献的人！
-
-### 主要贡献者
-- https://github.com/your-username - 项目创建者和维护者
-- https://github.com/contributor1 - 核心开发者
-- https://github.com/contributor2 - 文档维护
-
-### 使用的开源项目
-- https://github.com/pyca/cryptography - 加密功能
-- https://github.com/pydantic/pydantic - 数据验证
-- https://github.com/Textualize/rich - 终端美化
-- https://github.com/tiangolo/fastapi - Web框架
-- 以及其他所有依赖的开源项目
+特别感谢 **腾讯元宝** 在项目开发过程中提供的技术支持与帮助。
 
 ---
 
-**MindVault** - 为您的数据管理提供专业、安全的解决方案。
+**MindVault** © 2024 https://github.com/leo774-ux | 基于 LICENSE 发布
+
+<p align="center">
+  <sub>用 ❤️ 编写 | 开源创造价值</sub>
+</p>
