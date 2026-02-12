@@ -62,7 +62,7 @@ pip install "mindvault[dev]"
 
 #### 从源码安装
 ```bash
-git clone https://github.com/mindvault-team/mindvault.git
+git clone [https://github.com/mindvault-team/mindvault.git](https://github.com/Leo774-ux/MindVault.git)
 cd mindvault
 pip install -e ".[full]"
 ```
