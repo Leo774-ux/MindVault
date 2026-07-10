@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include "../include/db.h"
 
 #define SLOT_SIZE 256
 #define MAX_SLOTS 1024
@@ -22,7 +23,6 @@ void db_open(const char *path) {
     fd = open(path, O_RDWR | O_CREAT, 0644);
     if (fd < 0) { perror("open"); exit(1); }
 
-    // 文件大小 = 固定 slot 数组
     size_t size = MAX_SLOTS * sizeof(Slot);
     ftruncate(fd, size);
 
@@ -32,11 +32,18 @@ void db_open(const char *path) {
     slot_count = MAX_SLOTS;
 }
 
+void db_close(void) {
+    size_t size = MAX_SLOTS * sizeof(Slot);
+    munmap(slots, size);
+    close(fd);
+}
+
 int db_insert(const char *data) {
     for (int i = 0; i < slot_count; i++) {
         if (!slots[i].used) {
             slots[i].used = 1;
             strncpy(slots[i].data, data, sizeof(slots[i].data) - 1);
+            slots[i].data[sizeof(slots[i].data) - 1] = '\0';
             return i;
         }
     }
@@ -48,16 +55,20 @@ const char* db_query(int id) {
     return slots[id].data;
 }
 
-void db_close(void) {
-    size_t size = MAX_SLOTS * sizeof(Slot);
-    munmap(slots, size);
-    close(fd);
+int db_delete(int id) {
+    if (id < 0 || id >= slot_count || !slots[id].used) return -1;
+    slots[id].used = 0;
+    memset(slots[id].data, 0, sizeof(slots[id].data));
+    return 0;
 }
 
+// 简单测试
 int main(void) {
     db_open("test.mv");
     int id = db_insert("hello mindvault");
     printf("inserted id=%d, data=%s\n", id, db_query(id));
+    db_delete(id);
+    printf("after delete, query id=%d: %s\n", id, db_query(id) ? db_query(id) : "NULL");
     db_close();
     return 0;
 }
