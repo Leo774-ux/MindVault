@@ -6,9 +6,13 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include "../include/db.h"
+#include "../include/auth.h"
 
 #define SLOT_SIZE 256
 #define MAX_SLOTS 1024
+#define AUTH_GUEST 0
+#define AUTH_USER  1
+#define AUTH_ADMIN 2
 
 typedef struct {
     int   used;
@@ -39,7 +43,10 @@ void db_close(void) {
 }
 
 int db_insert(const char *data) {
-    for (int i = 0; i < slot_count; i++) {
+    if (auth_check(AUTH_USER, "insert") != 0) return -1;
+
+    int i;
+    for (i = 0; i < slot_count; i++) {
         if (!slots[i].used) {
             slots[i].used = 1;
             strncpy(slots[i].data, data, sizeof(slots[i].data) - 1);
@@ -49,7 +56,6 @@ int db_insert(const char *data) {
     }
     return -1;
 }
-
 const char* db_query(int id) {
     if (id < 0 || id >= slot_count || !slots[id].used) return NULL;
     return slots[id].data;
@@ -62,13 +68,27 @@ int db_delete(int id) {
     return 0;
 }
 
-// 简单测试
 int main(void) {
+    auth_set_level(AUTH_GUEST);
     db_open("test.mv");
-    int id = db_insert("hello mindvault");
-    printf("inserted id=%d, data=%s\n", id, db_query(id));
-    db_delete(id);
-    printf("after delete, query id=%d: %s\n", id, db_query(id) ? db_query(id) : "NULL");
+
+    // 尝试插入（GUEST 权限不足）
+    int id = db_insert("should fail");
+    if (id == -1) printf("Insert blocked as expected.\n");
+
+    // 提升权限
+    auth_set_level(AUTH_USER);
+    id = db_insert("hello mindvault");
+    printf("inserted id=%d\n", id);
+
+    // 尝试删除（USER 权限不足）
+    auth_set_level(AUTH_USER);
+    if (db_delete(id) == -1) printf("Delete blocked as expected.\n");
+
+    // ADMIN 权限可以删除
+    auth_set_level(AUTH_ADMIN);
+    if (db_delete(id) == 0) printf("Deleted successfully.\n");
+
     db_close();
     return 0;
 }
