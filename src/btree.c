@@ -121,3 +121,42 @@ void btree_close(void) {
     munmap(nodes, size);
     close(fd);
 }
+// 在叶子节点中删除 key
+static int leaf_delete(BTreeNode *node, int key) {
+    int i;
+    for (i = 0; i < node->count; i++) {
+        if (node->keys[i] == key) {
+            // 找到，后面的元素前移
+            for (int j = i; j < node->count - 1; j++) {
+                node->keys[j] = node->keys[j+1];
+            }
+            node->count--;
+            return 1; // 删除成功
+        }
+    }
+    return 0; // 没找到
+}
+
+// 从根节点开始删除
+int btree_delete(int key) {
+    int idx = root_offset;
+
+    // 找到包含 key 的叶子节点
+    while (!nodes[idx].is_leaf) {
+        BTreeNode *node = &nodes[idx];
+        int i = 0;
+        while (i < node->count && key >= node->keys[i]) i++;
+        idx = node->children[i];
+    }
+
+    // 在叶子节点中删除
+    int result = leaf_delete(&nodes[idx], key);
+
+    // 如果根节点变空且不是叶子（特殊情况），重置
+    if (nodes[root_offset].count == 0 && !nodes[root_offset].is_leaf) {
+        root_offset = nodes[root_offset].children[0];
+    }
+
+    return result;
+}
+

@@ -15,7 +15,6 @@ typedef struct {
 void btree_init(const char *path);
 int  btree_insert(int key);
 int  btree_search(int key);
-int  btree_delete(int key);
 void btree_close(void);
 
 #endif

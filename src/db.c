@@ -88,11 +88,11 @@ int db_delete(int id) {
     slots[id].used = 0;
     memset(slots[id].data, 0, sizeof(slots[id].data));
 
-    // 注意：B+树删除操作暂未实现，这里只标记 slot 为空
-    // 后续可以扩展 btree_delete
+    // 从 B+树中删除索引
+    btree_delete(id);
+
     return 0;
 }
-
 // 测试主函数
 int main(void) {
     auth_set_level(AUTH_ADMIN);
@@ -102,12 +102,18 @@ int main(void) {
     int id2 = db_insert("world");
     int id3 = db_insert("btree");
 
-    printf("Inserted: id1=%d, id2=%d, id3=%d\n", id1, id2, id3);
+    printf("Before delete:\n");
+    printf("  Find 0: %d\n", db_find_by_key(0));
+    printf("  Find 1: %d\n", db_find_by_key(1));
+    printf("  Find 2: %d\n", db_find_by_key(2));
 
-    printf("Query id1: %s\n", db_query(id1));
-    printf("Query id2: %s\n", db_query(id2));
-    printf("Find by key 1: %d\n", db_find_by_key(1));
-    printf("Find by key 99: %d\n", db_find_by_key(99));
+    printf("\nDeleting id1 (key=0)...\n");
+    db_delete(id1);
+
+    printf("After delete:\n");
+    printf("  Find 0: %d\n", db_find_by_key(0));
+    printf("  Find 1: %d\n", db_find_by_key(1));
+    printf("  Find 2: %d\n", db_find_by_key(2));
 
     db_close();
     return 0;
