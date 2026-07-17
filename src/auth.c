@@ -1,29 +1,19 @@
 #include <stdio.h>
-#include <time.h>
+#include <stdlib.h>
+#include <string.h>
 #include "auth.h"
+#include "db.h"
 
-static AuthLevel current_level = AUTH_GUEST;
-
-void auth_set_level(AuthLevel level) {
-    current_level = level;
-}
-
-AuthLevel auth_get_level(void) {
-    return current_level;
-}
-
-int auth_check(AuthLevel required, const char *operation) {
-    if (current_level < required) {
-        time_t now = time(NULL);
-        char *time_str = ctime(&now);
-        time_str[24] = '\0';
-        fprintf(stderr,
-            "\nSECURITY ALERT\n"
-            "Time: %s\nOperation: %s\nRequired: %s\nCurrent: %s\nAction: DENIED\n\n",
-            time_str, operation,
-            required == AUTH_GUEST ? "GUEST" : required == AUTH_USER ? "USER" : "ADMIN",
-            current_level == AUTH_GUEST ? "GUEST" : current_level == AUTH_USER ? "USER" : "ADMIN");
-        return -1;
+int check_permission(int required_level) {
+    if (db.permission_level >= required_level) {
+        return 1;
     }
+    printf("Access denied. Required level: %d, Current level: %d\n", required_level, db.permission_level);
     return 0;
+}
+
+void set_security_level(int level) {
+    if (level >= 0 && level <= 3) {
+        db.permission_level = level;
+    }
 }

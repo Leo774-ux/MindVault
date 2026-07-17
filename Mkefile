@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -g -I./include
-SRC = src/cli.c src/db.c src/btree.c src/auth.c
-OBJ = mindvault
+SRC = src/main.c src/db.c src/btree.c src/auth.c
+OBJ = db
 
 all:
 	$(CC) $(CFLAGS) $(SRC) -o $(OBJ) -lm

@@ -1,10 +1,7 @@
 #ifndef BTREE_H
 #define BTREE_H
-
-#include "db.h"
-
-void btree_init(Database *db);
-int  btree_insert(Database *db, int offset, int length);
-void btree_delete(int offset);
-
+void btree_init(void);
+void btree_insert(int key, void *value);
+void* btree_search(int key);
+void btree_delete(int key);
 #endif
