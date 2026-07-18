@@ -1,4 +1,4 @@
-# 心灵穹顶 · MindVault
+# MindVault
 
 > 基于 mmap 的嵌入式数据库引擎  
 > 属于 StormForge 系列组件之一
