@@ -1,0 +1,28 @@
+cmake_minimum_required(VERSION 3.10)
+project(mindvault)
+
+# 平台相关源文件（当前仅Linux）
+set(PLATFORM_SRC src/platform/platform_linux.c)
+
+# 源文件列表（HTTP服务端 + 数据库逻辑）
+set(SOURCES
+    src/cli.c
+    src/mindvault.c
+    src/db.c       # 数据库操作源文件（需确保存在）
+    
+)
+
+# 头文件目录
+include_directories(/include)
+
+# 可执行文件
+add_executable(mindvault )
+
+# 链接依赖库（HTTP服务需libmicrohttpd）
+find_package(LibMicroHttpd REQUIRED)
+target_link_libraries(mindvault PRIVATE LibMicroHttpd::LibMicroHttpd)
+
+# Linux下链接数学库（可选，若db.c用到数学函数）
+if(UNIX AND NOT APPLE)
+    target_link_libraries(mindvault PRIVATE m)
+endif()

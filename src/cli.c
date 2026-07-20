@@ -1,14 +1,14 @@
-#include <stdio.h>
 #include "mindvault.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+void hello_handler() {
+    printf("Handling /hello\n");
+}
 
 int main() {
-    printf("MindVault CLI\n");
-    printf("=============\n");
-    mv_init();
-    mv_open("/tmp/test.db");
-    mv_insert(1, "Hello World!");
-    Record* rec = mv_query(1);
-    if (rec) printf("Query: %s\n", rec->data);
-    mv_close();
+    mindvault_app_t *app = mindvault_create();
+    mindvault_add_route(app, "/hello", hello_handler);
+    mindvault_run(app, 8080);
     return 0;
 }
